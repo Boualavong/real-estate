@@ -1,12 +1,12 @@
-//importing modules
+//importing modules (-> librairies)
 var express = require( 'express' );
 var request = require( 'request' );
 var cheerio = require( 'cheerio' );
 
-//creating a new express server
+//creating a new express server -> express est un module pour le créer
 var app = express();
 
-//setting EJS as the templating engine
+//setting EJS as the templating engine -> template
 app.set( 'view engine', 'ejs' );
 
 //setting the 'assets' directory as our static assets dir (css, js, img, etc...)
@@ -14,11 +14,118 @@ app.use( '/assets', express.static( 'assets' ) );
 
 
 //makes the server respond to the '/' route and serving the 'home.ejs' template in the 'views' directory
+//page d'accueil qui s'affiche par défaut
+//function est anonyme, utilisée par souci de performa,ce (+ rapide). req=requete, res=reponse ( qui renvoie à la page d'accueil)
 app.get( '/', function ( req, res ) {
-    res.render( 'home', {
-        message: 'The Home Page!'
+    const url= req.query.lbcUrl;
+
+
+function getLBCData(lbcUrl,routeResponse, callback)
+{
+	request( lbcUrl,function(error,response,html)
+	{
+		if(!error)
+		{
+			let $ cheerio.load(html);//module pour parser le doc html (parser=analyser)
+			const lcbData=parseLBCData(html);
+
+			if(lbcData) //si on extrait les données, callback est appelée
+			 {
+				console.log('LBCData:',lbcData)//affiche dans la console
+				callback(lbcData,routeResponse)
+			 }
+
+			else
+			 {
+				routeResponse.render('pages/index',
+					{error:'No data found'});
+			 }
+		}
+
+		else
+		{
+			routeResponse.render('pages/index',
+			{error:'Error loading the given URL'});
+		}
+
+		
+	});
+}
+
+
+function parseLBCData(html)
+{
+	const $ =cheerio.load(html)
+
+	const lbcDataArray=$ ('section.properties span.value')
+
+	//toutes les vleurs des noeuds "span" qui sont fils de section.properties
+	//stocke dans un tableau
+	//récupérer les données à partir du tableau
+
+	return lbcData={
+		price: parseInt ( $ ( lbcDataArray.get(0) )
+		        .text().replace( \/s/g, ''),10  ),
+
+		city: $ (lbcDataArray.get(1) )
+		     .text().trim().toLowerCase()
+		     .replace(/\_|\s/g, '-').replace(/\-\d+/,''),
+
+		postalCode: $ (lbcDataArray.get(1) )
+		       .text().trim().toLowerCase().replace(/\D|\-/g, ''),
+
+		type: $ ( lbcDataArray.get(2) )
+		       .text().trim().toLowerCase(),
+
+		surface: parseInt( $ (lbcDataArray.get(4) ) 
+			    .text().replace(\/s/g, ''), 10)
+
+	}
+}
+
+
+function getMAEstimation(lbcData, routeResponse)
+{
+	if( lbcData.city && lbcData.postalCode && lbcData.surface && lbcData.price)
+	{
+		const url='https://wwww.meilleursagents.com/prix-immobilier/{city}-{postalCode}/'.replace('{city}',
+			lbcData.city.replace(/\_/g,'-') )
+		.replace( '{postalCode}', lbcData.postalCode);
+
+		console.log('MA URL: ', url)
+
+		request ( url, function (error,response, html)
+			{
+				if(!error){ let $ cheerio.load(html);}//module pour parser le doc html (parser=analyser)}
+			}
+
+		       )
+	}
+}
+
+function isGoodDeal(lbcData,maData)
+{
+	const adPricePerSqM=Math.round(lbcData.price / lbcData.surface)
+	const maPrice = lbcData.price
+}
+
+    if(url)  //récupère url qu'on analyse
+	{ 
+
+	   getLBCData(url,res,getMAEstimation) //geetMAE fn call back qui s'execute une fois que getLBCData est executée
+    }
+
+    else
+    { //si url est pas rempli
+       res.render('pages/index', { 
+          error:'Url is empty'
+          }); //j'ai un répertoire page avec index.html
+     }
+
+    // res.render( 'home', {
+    //     message: 'The Home Page!'
     });
-});
+
 
 
 //launch the server on the 3000 port
