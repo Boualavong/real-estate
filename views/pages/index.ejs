@@ -5,19 +5,15 @@
 <html>
 
 <head>
-   <% include ../partials/head %>
+
+	<title> WS3 - Comparatif LeBonCoin </title>
 </head>
 
 <body> 
+<form action="scrape" method="post">
+	<button id="comparer"> Comparer </button>
+	<input class="model" type="text" name="lien" id="lien" placeholder="Site"/>
+</form>
 
-      <% include ../partials/navbar %>
-
-      <main>
-            <% include ../partials/form %>
-               <div class = "container mg-b-20">
-                   <% include ../partials/result %>
-               </div>
-
-      </main>
 
 </body>

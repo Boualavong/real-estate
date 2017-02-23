@@ -2,6 +2,7 @@
 var express = require( 'express' );
 var request = require( 'request' );
 var cheerio = require( 'cheerio' );
+var bodyParser=require('body-parser'); 
 
 //creating a new express server -> express est un module pour le créer
 var app = express();
@@ -12,12 +13,37 @@ app.set( 'view engine', 'ejs' );
 //setting the 'assets' directory as our static assets dir (css, js, img, etc...)
 app.use( '/assets', express.static( 'assets' ) );
 
-
 //makes the server respond to the '/' route and serving the 'home.ejs' template in the 'views' directory
 //page d'accueil qui s'affiche par défaut
-//function est anonyme, utilisée par souci de performa,ce (+ rapide). req=requete, res=reponse ( qui renvoie à la page d'accueil)
+//function est anonyme, utilisée par souci de performance (+ rapide). req=requete, res=reponse ( qui renvoie à la page d'accueil)
 app.get( '/', function ( req, res ) {
-    const url= req.query.lbcUrl;
+res.render(__dirname+'/views/pages/index')
+});
+
+app.use(bodyParser.urlencoded({
+	extended:true
+}));
+
+
+app.post('/scrape',function(req,res){
+	 const url= req.body.lien;
+
+    if(url!="")  //récupère url qu'on analyse
+	{ 
+	   getLBCData(url,res,getMAEstimation) //geetMAE fn call back qui s'execute une fois que getLBCData est executée
+    }
+    else
+    { //si url est pas rempli
+    	console.log("on est pas bon")
+       res.render('pages/index', { 
+          error:'Url is empty'
+          }); //j'ai un répertoire page avec index.html
+     }
+
+    // res.render( 'home', {
+    //     message: 'The Home Page!'
+});
+   
 
 
 function getLBCData(lbcUrl,routeResponse, callback)
@@ -26,7 +52,6 @@ function getLBCData(lbcUrl,routeResponse, callback)
 	{
 		if(!error)
 		{
-			let $ cheerio.load(html);//module pour parser le doc html (parser=analyser)
 			const lcbData=parseLBCData(html);
 
 			if(lbcData) //si on extrait les données, callback est appelée
@@ -57,28 +82,15 @@ function parseLBCData(html)
 {
 	const $ =cheerio.load(html)
 
-	const lbcDataArray=$ ('section.properties span.value')
+	const lbcDataArray=$ ('#adview > section > section > section.properties.lineNegative > div:nth-child(7) > h2 > span.value')
 
 	//toutes les vleurs des noeuds "span" qui sont fils de section.properties
 	//stocke dans un tableau
 	//récupérer les données à partir du tableau
 
 	return lbcData={
-		price: parseInt ( $ ( lbcDataArray.get(0) )
-		        .text().replace( \/s/g, ''),10  ),
-
-		city: $ (lbcDataArray.get(1) )
-		     .text().trim().toLowerCase()
-		     .replace(/\_|\s/g, '-').replace(/\-\d+/,''),
-
-		postalCode: $ (lbcDataArray.get(1) )
-		       .text().trim().toLowerCase().replace(/\D|\-/g, ''),
-
-		type: $ ( lbcDataArray.get(2) )
-		       .text().trim().toLowerCase(),
-
-		surface: parseInt( $ (lbcDataArray.get(4) ) 
-			    .text().replace(\/s/g, ''), 10)
+		type: ( $ ( lbcDataArray )
+		        .text().replace(/\s/g, ''),10 )
 
 	}
 }
@@ -96,7 +108,7 @@ function getMAEstimation(lbcData, routeResponse)
 
 		request ( url, function (error,response, html)
 			{
-				if(!error){ let $ cheerio.load(html);}//module pour parser le doc html (parser=analyser)}
+				if(!error){ let $ = cheerio.load(html);}//module pour parser le doc html (parser=analyser)}
 			}
 
 		       )
@@ -106,25 +118,10 @@ function getMAEstimation(lbcData, routeResponse)
 function isGoodDeal(lbcData,maData)
 {
 	const adPricePerSqM=Math.round(lbcData.price / lbcData.surface)
-	const maPrice = lbcData.price
+	const maPrice = lbcData.type === 'appartement' ? maData.priceAppart:maData.priceHouse
+
+	return adPricePerSqM < maPrice
 }
-
-    if(url)  //récupère url qu'on analyse
-	{ 
-
-	   getLBCData(url,res,getMAEstimation) //geetMAE fn call back qui s'execute une fois que getLBCData est executée
-    }
-
-    else
-    { //si url est pas rempli
-       res.render('pages/index', { 
-          error:'Url is empty'
-          }); //j'ai un répertoire page avec index.html
-     }
-
-    // res.render( 'home', {
-    //     message: 'The Home Page!'
-    });
 
 
 

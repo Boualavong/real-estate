@@ -2,6 +2,7 @@
     "title": "Real estate",
     "type": "object",
     "properties": {
+
 	"price": {
             "type": "integer"
         },
@@ -10,10 +11,7 @@
         },
         "town": {
             "type": "string"
-        },
-        "nb of rooms": {
-            "type": "integer",
-            "minimum": 1
         }
+       
     }
 }
