@@ -1,0 +1,10 @@
+{
+
+
+"Adresse" = "string",
+"Numero" = "integer"
+"Ville" = "string"
+"Code postal" = "integer"
+"Surface Carrez" = "double"
+	
+}

@@ -1,32 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html  lang="fr">
 
 <head>
-    <title>Home</title>
+    <title>Bad or not bad</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <!--header, menu-->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+	<!-- la mise en page du site-->
+	<script src="assets/js/skel.min.js"></script>
+	<script src="assets/js/init.js"></script>
+    
     <link rel="stylesheet" href="/assets/css/style.css" />
+    <link href="assets/css/creative.min.css" rel="stylesheet"/>
 </head>
 
-<body>
-    <p>Welcome to
-        <%= message %>
-    </p>
+	<body class="index loading">
+	
+		<!-- Header -->
+			<header id="header" class="alt">
+				<h1 id="logo"><a href="home.ejs">Bad or not bad</a></h1>
+				<nav id="nav">
+					<ul>
+						<li class="submenu">
+							<a href="">Menu</a>
+							<ul>
+								<li><a href="home.ejs">Acceuil</a></li>
+								<li><a href="https://github.com/92bondstreet/javascript-empire">Javascript Empire</a></li>
+								<li><a href="https://github.com/92bondstreet/carrez">About this workshop</a></li>
+			
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</nav>
+			</header>
 
-<form method="get" action="/process">
-	<div class="row">
+			<section id="banner">
+
+				<div class="inner">
+					
+					<header>
+						<h2>Est-ce un bon plan ?</h2>
+					</header>
+
+		<form method = "get" action = "/process">
+
 		
-		<div class = "col-xs-8 col-sm-9">
-			<input type="text" class="form-control" 
-			name ="lbcUrl" placeholder="https://www.leboncoin.fr">
-		</div>
+			<div>
+			<input type = "text" class = "form-control" name ="lbcUrl" placeholder ="https://www.leboncoin.fr" style="Text-ALIGN:center">
+			</div>
+			
+			<div>
+				<button type = "submit" class="button fit scrolly"> Tell me </button>
+			</div>
 
-		<div class="col-xs-4 col-sm-3">
-			<button type="submit" class="btn btn-default"> Tell me </button>
-		</div>
+	</form>
 
-	</div>
-</form>
+		<%if (error == "No error") { %>
+	
+	<%if (data.deal.good) { %>
+	<p> 
+	Le logement de type
+	<%=data.lbcData.type%> 
+
+	 au prix de 
+	<%=data.lbcData.price%> 
+
+	 situé a
+	<%=data.lbcData.city%> 
+
+	
+	(<%=data.lbcData.postalcode%> )
 
 
-</body>
+	mesurant
+	<%=data.lbcData.surface%> 
+	m²
 
+
+
+	est un bon deal
+	</p>
+	
+	<%} else {%>
+	<p> 
+	Le logement de type
+	<%=data.lbcData.type%> 
+
+	 au prix de 
+	<%=data.lbcData.price%> 
+
+	 situé a
+	<%=data.lbcData.city%> 
+
+	
+	(<%=data.lbcData.postalcode%> )
+
+
+	mesurant
+	<%=data.lbcData.surface%> 
+	m²
+
+
+
+	est un mauvais deal
+	</p>	
+
+	<%}%>
+	
+	<%}else{%>
+	
+	<%=error%>
+	
+	<%}%>
+	
+				
+				</div>
+				
+			</section>
+
+				<footer>
+              <center>
+              <p class="footer-credit">Web application - WS3 - 3/03/2017</a></p>
+          </center>
+				</footer>
+			</section>
+	</body>
 </html>
